@@ -1,6 +1,17 @@
 import { AUTH, API_KEY } from '../config';
 
 async function authReq(endpoint, body) {
+  if (!API_KEY) {
+    // Demo mode - return mock user data
+    if (endpoint === "signUp" || endpoint === "signInWithPassword") {
+      return {
+        idToken: "demo-token",
+        localId: "demo-user",
+        email: body.email
+      };
+    }
+    return {};
+  }
   const r = await fetch(`${AUTH}:${endpoint}?key=${API_KEY}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

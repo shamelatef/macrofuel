@@ -1,4 +1,4 @@
-import { FS } from '../config';
+import { FS, API_KEY } from '../config';
 
 function toFS(obj) {
   function cv(v) {
@@ -28,6 +28,13 @@ function fromFS(fields = {}) {
 }
 
 export async function fsGet(path, token) {
+  if (!API_KEY) {
+    // Demo mode - return mock data
+    if (path.includes('days/')) {
+      return { meals: {}, workout: null };
+    }
+    return [];
+  }
   const r = await fetch(`${FS}/${path}`, { headers: { Authorization: `Bearer ${token}` } });
   if (r.status === 404) return null;
   const d = await r.json();
@@ -35,6 +42,11 @@ export async function fsGet(path, token) {
 }
 
 export async function fsSet(path, data, token) {
+  if (!API_KEY) {
+    // Demo mode - just log and return
+    console.log('Demo mode: Would save data to', path, data);
+    return;
+  }
   const r = await fetch(`${FS}/${path}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -47,6 +59,10 @@ export async function fsSet(path, data, token) {
 }
 
 export async function fsList(path, token) {
+  if (!API_KEY) {
+    // Demo mode - return empty list
+    return [];
+  }
   const r = await fetch(`${FS}/${path}`, { headers: { Authorization: `Bearer ${token}` } });
   const d = await r.json();
   if (!d.documents) return [];
@@ -56,5 +72,10 @@ export async function fsList(path, token) {
 }
 
 export async function fsDelete(path, token) {
+  if (!API_KEY) {
+    // Demo mode - just log and return
+    console.log('Demo mode: Would delete', path);
+    return;
+  }
   await fetch(`${FS}/${path}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
 }
